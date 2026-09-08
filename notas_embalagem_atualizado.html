@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notas de Embalagem</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        header {
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+            color: #222;
+        }
+
+        header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 30px;
+            font-weight: bold;
+            color: #222;
+        }
+
+        .yellow {
+            border-left: 5px solid #f1c40f;
+        }
+
+        .red {
+            border-left: 5px solid #e74c3c;
+        }
+
+        .gray {
+            border-left: 5px solid #7f8c8d;
+        }
+
+        .total {
+            border-left: 5px solid #3498db;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+        }
+
+        .chart-header h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .chart-header p {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 500px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+        }
+
+        .table-container h2 {
+            font-size: 20px;
+            margin-bottom: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th,
+        td {
+            padding: 12px 14px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: bold;
+            color: #444;
+        }
+
+        td:first-child,
+        th:first-child {
+            text-align: left;
+        }
+
+        tr:hover {
+            background: #fafafa;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-yellow {
+            background: #fff3b0;
+            color: #7d6500;
+        }
+
+        .badge-red {
+            background: #ffd6d2;
+            color: #a32920;
+        }
+
+        .badge-gray {
+            background: #e5e7e9;
+            color: #555;
+        }
+
+        @media (max-width: 900px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-wrapper {
+                height: 400px;
+            }
+
+            header h1 {
+                font-size: 23px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header>
+            <h1>Notas de Embalagem</h1>
+            <p>Distribuição das notas por linha e classificação.</p>
+        </header>
+
+        <section class="cards">
+
+            <div class="card yellow">
+                <div class="card-title">Notas Amarelas</div>
+                <div class="card-value">52</div>
+            </div>
+
+            <div class="card red">
+                <div class="card-title">Notas Vermelhas</div>
+                <div class="card-value">136</div>
+            </div>
+
+            <div class="card gray">
+                <div class="card-title">ND</div>
+                <div class="card-value">119</div>
+            </div>
+
+            <div class="card total">
+                <div class="card-title">Total Geral</div>
+                <div class="card-value">307</div>
+            </div>
+
+        </section>
+
+        <section class="chart-container">
+
+            <div class="chart-header">
+                <h2>Distribuição das notas por linha</h2>
+                <p>
+                    Passe o mouse sobre uma coluna para ver as quantidades atuais
+                    e a quantidade de notas vencidas da respectiva linha.
+                </p>
+            </div>
+
+            <div class="chart-wrapper">
+                <canvas id="notasChart"></canvas>
+            </div>
+
+        </section>
+
+        <section class="table-container">
+
+            <h2>Detalhamento por linha</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Classificação</th>
+                        <th>Linha 1</th>
+                        <th>Linha 2</th>
+                        <th>Linha 3</th>
+                        <th>Linha 4</th>
+                        <th>Linha 5</th>
+                        <th>Linha 6</th>
+                        <th>Linha 7</th>
+                        <th>Linha 8</th>
+                        <th>Linha 9</th>
+                        <th>Linha 10</th>
+                        <th>Linha 14</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td><span class="badge badge-yellow">Amarela</span></td>
+                        <td>1</td>
+                        <td>2</td>
+                        <td>17</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>14</td>
+                        <td>10</td>
+                        <td>3</td>
+                        <td>3</td>
+                    </tr>
+
+                    <tr>
+                        <td><span class="badge badge-red">Vermelha</span></td>
+                        <td>2</td>
+                        <td>0</td>
+                        <td>45</td>
+                        <td>11</td>
+                        <td>0</td>
+                        <td>7</td>
+                        <td>5</td>
+                        <td>39</td>
+                        <td>34</td>
+                        <td>5</td>
+                        <td>0</td>
+                    </tr>
+
+                    <tr>
+                        <td><span class="badge badge-gray">ND</span></td>
+                        <td>2</td>
+                        <td>4</td>
+                        <td>26</td>
+                        <td>24</td>
+                        <td>6</td>
+                        <td>10</td>
+                        <td>1</td>
+                        <td>40</td>
+                        <td>0</td>
+                        <td>10</td>
+                        <td>10</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </section>
+
+    </div>
+
+    <script>
+        const labels = [
+            'Linha 1', 'Linha 2', 'Linha 3', 'Linha 4', 'Linha 5',
+            'Linha 6', 'Linha 7', 'Linha 8', 'Linha 9', 'Linha 10', 'Linha 14'
+        ];
+
+        /*
+         * Dados da segunda foto: situação atual.
+         */
+        const atuais = {
+            amarela: [1, 2, 17, 0, 0, 0, 0, 14, 10, 3, 3],
+            vermelha: [2, 0, 45, 11, 0, 7, 5, 39, 34, 5, 0],
+            nd: [2, 4, 26, 24, 6, 10, 1, 40, 0, 10, 10]
+        };
+
+        /*
+         * Dados da primeira foto: notas vencidas.
+         * Os valores são armazenados por linha para serem exibidos
+         * no tooltip ao passar o mouse sobre a barra.
+         */
+        const vencidas = {
+            amarela: [0, 2, 16, 0, 0, 0, 0, 11, 3, 2, 5],
+            vermelha: [2, 0, 27, 4, 0, 2, 5, 24, 10, 1, 0],
+            nd: [0, 0, 6, 4, 3, 2, 1, 13, 0, 3, 1]
+        };
+
+        const ctx = document.getElementById('notasChart').getContext('2d');
+
+        const data = {
+            labels: labels,
+
+            datasets: [
+                {
+                    label: 'Amarela',
+                    data: atuais.amarela,
+                    backgroundColor: '#f1c40f'
+                },
+                {
+                    label: 'Vermelha',
+                    data: atuais.vermelha,
+                    backgroundColor: '#e74c3c'
+                },
+                {
+                    label: 'ND',
+                    data: atuais.nd,
+                    backgroundColor: '#7f8c8d'
+                }
+            ]
+        };
+
+        const config = {
+            type: 'bar',
+
+            data: data,
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+
+                        callbacks: {
+                            /*
+                             * Mantém a quantidade atual de cada classificação
+                             * e acrescenta as informações de vencimento.
+                             */
+                            afterBody: function (context) {
+                                const index = context[0].dataIndex;
+
+                                const vencAmarela = vencidas.amarela[index];
+                                const vencVermelha = vencidas.vermelha[index];
+                                const vencND = vencidas.nd[index];
+
+                                const totalVencidas =
+                                    vencAmarela +
+                                    vencVermelha +
+                                    vencND;
+
+                                return [
+                                    '',
+                                    'NOTAS VENCIDAS',
+                                    'Total vencidas: ' + totalVencidas,
+                                    'Amarela vencida: ' + vencAmarela,
+                                    'Vermelha vencida: ' + vencVermelha,
+                                    'ND vencida: ' + vencND
+                                ];
+                            }
+                        }
+                    }
+                },
+
+                scales: {
+                    x: {
+                        stacked: true,
+
+                        title: {
+                            display: true,
+                            text: 'Linhas'
+                        }
+                    },
+
+                    y: {
+                        stacked: true,
+
+                        beginAtZero: true,
+
+                        title: {
+                            display: true,
+                            text: 'Quantidade de notas'
+                        },
+
+                        ticks: {
+                            stepSize: 10
+                        }
+                    }
+                }
+            }
+        };
+
+        new Chart(ctx, config);
+    </script>
+
+</body>
+
+</html>
